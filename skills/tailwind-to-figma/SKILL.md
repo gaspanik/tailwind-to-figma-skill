@@ -1,13 +1,13 @@
 ---
 name: tailwind-to-figma
-description: Reads Tailwind CSS v4 @theme tokens from src/index.css and writes them to a Figma file as Variables, organized into appropriate collections by type.
+description: Finds the Tailwind CSS v4 entry file by searching for @import "tailwindcss", reads @theme tokens, and writes them to a Figma file as Variables organized into appropriate collections by type.
 argument-hint: '(optional: Figma file URL → append to existing file / file name only → create new file with that name / omit → create new file named "Design Tokens")'
 allowed-tools: mcp__plugin_figma_figma__use_figma, mcp__plugin_figma_figma__create_new_file, mcp__plugin_figma_figma__whoami, Read, Bash, Skill
 ---
 
 # Export Tailwind v4 Tokens as Figma Variables
 
-Read all CSS custom properties from the `@theme` block in `src/index.css` and write them as Figma Variables.
+Find the Tailwind CSS v4 entry file, read all CSS custom properties from the `@theme` block, and write them as Figma Variables.
 
 **Output language:** Respond in the same language the user is using in this conversation.
 
@@ -19,9 +19,19 @@ Before calling `use_figma`, always load the `figma-use` skill first:
 /figma:figma-use
 ```
 
-## Step 1: Read and parse src/index.css
+## Step 1: Find and parse the Tailwind CSS entry file
 
-Use the `Read` tool to load `src/index.css` and extract all CSS custom properties inside the `@theme { ... }` block.
+First, use the `Bash` tool to locate the CSS file that imports Tailwind:
+
+```bash
+grep -rl --include="*.css" --exclude-dir=node_modules --exclude-dir=dist '@import ["'"'"']tailwindcss' . 2>/dev/null
+```
+
+- If **one file** is found → use it
+- If **multiple files** are found → ask the user which one to use
+- If **no file** is found → ask the user to provide the CSS file path
+
+Then use the `Read` tool to load that file and extract all CSS custom properties inside the `@theme { ... }` block.
 
 ### Variable prefixes and their classification
 
@@ -185,7 +195,7 @@ Report the following:
 
 ## Error handling
 
-- If `src/index.css` is not found: ask the user to confirm the file path
+- If no CSS file with `@import "tailwindcss"` is found: ask the user to provide the CSS file path
 - If the `@theme` block is empty: report that no variables are defined
 - If `create_new_file` fails: ask the user to check Figma login status (verifiable with `whoami`)
 - If `use_figma` returns an error: check the error details and review the variable data format
