@@ -1,7 +1,7 @@
 ---
 name: tailwind-to-figma
 description: Reads Tailwind CSS v4 @theme tokens from src/index.css and writes them to a Figma file as Variables, organized into appropriate collections by type.
-argument-hint: (optional: Figma file URL → append to existing file / file name only → create new file with that name / omit → create new file named "Design Tokens")
+argument-hint: '(optional: Figma file URL → append to existing file / file name only → create new file with that name / omit → create new file named "Design Tokens")'
 allowed-tools: mcp__plugin_figma_figma__use_figma, mcp__plugin_figma_figma__create_new_file, mcp__plugin_figma_figma__whoami, Read, Bash, Skill
 ---
 
